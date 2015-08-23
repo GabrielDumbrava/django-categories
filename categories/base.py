@@ -108,7 +108,7 @@ class CategoryBaseAdminForm(forms.ModelForm):
         # Validate Category Parent
         # Make sure the category doesn't set itself or any of its children as
         # its parent.
-        decendant_ids = self.instance.get_descendants().values_list('id', flat=True)
+        decendant_ids = self.instance.get_descendants().values_list('id', flat=True) if self.instance.id else None
         if self.cleaned_data.get('parent', None) is None or self.instance.id is None:
             return self.cleaned_data
         elif self.cleaned_data['parent'].id == self.instance.id:
