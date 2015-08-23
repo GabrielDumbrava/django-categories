@@ -1,7 +1,7 @@
 from django import template
 from django.db.models import get_model
-from django.template import (Node, TemplateSyntaxError, VariableDoesNotExist,
-                             FilterExpression)
+from django.template import (Node, TemplateSyntaxError, VariableDoesNotExist)
+from django.template.base import FilterExpression
 from categories.base import CategoryBase
 from categories.models import Category
 from mptt.utils import drilldown_tree_for_node
@@ -46,7 +46,7 @@ def get_category(category_string, model=Category):
     Convert a string, including a path, and return the Category object
     """
     model_class = get_cat_model(model)
-    category = category_string.__unicode__().strip("'\'")
+    category = str(category_string).strip("'\"")
     category = category.strip('/')
 
     cat_list = category.split('/')
@@ -184,7 +184,10 @@ def display_drilldown_as_ul(category, using='categories.Category'):
         </ul>
     """
     cat = get_category(category, using)
-    return {'category': cat, 'path': drilldown_tree_for_node(cat) if cat else []}
+    if cat is None:
+        return {'category': cat, 'path': []}
+    else:
+        return {'category': cat, 'path': drilldown_tree_for_node(cat)}
 
 
 @register.inclusion_tag('categories/ul_tree.html')
